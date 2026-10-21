@@ -1,0 +1,113 @@
+
+class Cola:
+    def __init__(self):
+        self.elementos = []
+
+    def encolar(self, elemento):
+        if elemento in self.elementos:
+            return False
+
+        self.elementos.append(elemento)
+        return True
+
+    def desencolar(self):
+        if not self.esta_vacia():
+            return self.elementos.pop(0)
+        return None
+
+    def esta_vacia(self):
+        return len(self.elementos) == 0
+
+    def mostrar(self):
+        return self.elementos.copy()
+
+
+class SistemaSeguros:
+    def __init__(self):
+        self.servicios = {
+            1: "Seguros de automóvil",
+            2: "Seguros de vida",
+            3: "Seguros de hogar"
+        }
+
+        self.colas = {numero: Cola() for numero in self.servicios}
+        self.contadores = {numero: 0 for numero in self.servicios}
+
+    def llegada_cliente(self, servicio):
+        if servicio not in self.servicios:
+            print("El servicio solicitado no existe.")
+            return
+
+        numero = self.contadores[servicio] + 1
+
+        if numero in self.colas[servicio].mostrar():
+            print("Este número de turno ya existe.")
+            return
+
+        if self.colas[servicio].encolar(numero):
+            self.contadores[servicio] = numero
+            print(f"\nCliente registrado correctamente.")
+            print(f"Servicio: {self.servicios[servicio]}")
+            print(f"Turno asignado: {servicio}-{numero:03d}")
+
+    def atender_cliente(self, servicio):
+        if servicio not in self.servicios:
+            print("El servicio solicitado no existe.")
+            return
+
+        if self.colas[servicio].esta_vacia():
+            print("\nNo hay clientes esperando en este servicio.")
+            print("No se puede realizar la atención.")
+            return
+
+        numero = self.colas[servicio].desencolar()
+
+        print(f"\nAtendiendo al turno: {servicio}-{numero:03d}")
+        print("Cliente atendido y eliminado de la cola.")
+
+    def mostrar_colas(self):
+        print("\n===== TURNOS EN ESPERA =====")
+
+        for servicio, cola in self.colas.items():
+            print(f"\n{servicio}. {self.servicios[servicio]}")
+
+            if cola.esta_vacia():
+                print("No hay clientes esperando.")
+            else:
+                for numero in cola.mostrar():
+                    print(f"  Turno {servicio}-{numero:03d}")
+
+
+sistema = SistemaSeguros()
+
+while True:
+    print("\n===== COMPAÑÍA DE SEGUROS =====")
+    print("1. Seguros de automóvil")
+    print("2. Seguros de vida")
+    print("3. Seguros de hogar")
+    print("\nC + número: Registrar cliente")
+    print("A + número: Atender cliente")
+    print("M: Mostrar turnos en espera")
+    print("S: Salir")
+
+    comando = input("\nIngrese comando: ").strip().upper()
+
+    if comando == "S":
+        print("\nSistema finalizado.")
+        break
+
+    elif comando == "M":
+        sistema.mostrar_colas()
+
+    elif len(comando) == 2 and comando[0] in "CA" and comando[1].isdigit():
+        accion = comando[0]
+        servicio = int(comando[1])
+
+        if accion == "C":
+            sistema.llegada_cliente(servicio)
+        else:
+            sistema.atender_cliente(servicio)
+
+    else:
+        print("\nComando no válido.")
+        print("Utilice C1, C2, C3, A1, A2, A3, M o S.")
